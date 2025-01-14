@@ -1,5 +1,5 @@
 
-# Loan Status Prediction and Analysis
+# Loan Status Prediction and Analysis - Project By: Alaissa Shaikh
 
 ## Project Overview
 
