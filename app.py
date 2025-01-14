@@ -19,7 +19,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # Title of the web app
-st.title("Loan Status Prediction and Analysis")
+st.title("Loan Status Prediction and Analysis - Project By: Alaissa Shaikh")
 
 # File uploader to upload dataset
 uploaded_file = st.file_uploader("Upload Your CSV File", type=["csv"])
@@ -132,13 +132,28 @@ if uploaded_file is not None:
     shap_values = explainer(X_test, check_additivity=False)
     shap.summary_plot(shap_values, X_test, feature_names=X.columns)
 
-    # LIME Interpretability (for individual predictions)
-    if model_selection != "Voting Classifier":
-        st.subheader("LIME Explanation for Random Instance")
-        explainer_lime = lime.lime_tabular.LimeTabularExplainer(X_train, training_labels=y_train, mode='classification', training_mode='regression', feature_names=X.columns)
-        idx = 1  # Example instance to explain
-        exp = explainer_lime.explain_instance(X_test[idx], model.predict_proba, num_features=5)
-        exp.show_in_notebook()
+    import lime
+import lime.lime_tabular
+
+# Assuming model and X_train, y_train are already defined
+
+# Create Lime explainer
+explainer_lime = lime.lime_tabular.LimeTabularExplainer(
+    X_train, 
+    training_labels=y_train, 
+    mode='classification',  # Correct mode for classification tasks
+    feature_names=X.columns, 
+    class_names=['Rejected', 'Approved'],  # Specify the class names for your task
+    discretize_continuous=True  # Optional: Discretize continuous features for better explanations
+)
+
+# Select a sample for which you want to generate the explanation
+sample_idx = 10  # Example: Pick the 10th sample in your test set
+explanation = explainer_lime.explain_instance(X_test[sample_idx], model.predict_proba, num_features=5)
+
+# Visualize the explanation
+explanation.show_in_notebook()  # This will open a visualization of the explanation in the notebook
+
 
     # Confusion Matrix
     st.subheader("Confusion Matrix")
