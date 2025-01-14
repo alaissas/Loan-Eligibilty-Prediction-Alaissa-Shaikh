@@ -132,28 +132,23 @@ if uploaded_file is not None:
     shap_values = explainer(X_test, check_additivity=False)
     shap.summary_plot(shap_values, X_test, feature_names=X.columns)
 
-    import lime
-import lime.lime_tabular
+    # LIME Interpretability
+    st.subheader("LIME Explanation")
+    explainer_lime = lime.lime_tabular.LimeTabularExplainer(
+        X_train, 
+        training_labels=y_train, 
+        mode='classification',  # Correct mode for classification tasks
+        feature_names=X.columns, 
+        class_names=['Rejected', 'Approved'],  # Specify the class names for your task
+        discretize_continuous=True  # Optional: Discretize continuous features for better explanations
+    )
 
-# Assuming model and X_train, y_train are already defined
+    # Select a sample for which you want to generate the explanation
+    sample_idx = 10  # Example: Pick the 10th sample in your test set
+    explanation = explainer_lime.explain_instance(X_test[sample_idx], model.predict_proba, num_features=5)
 
-# Create Lime explainer
-explainer_lime = lime.lime_tabular.LimeTabularExplainer(
-    X_train, 
-    training_labels=y_train, 
-    mode='classification',  # Correct mode for classification tasks
-    feature_names=X.columns, 
-    class_names=['Rejected', 'Approved'],  # Specify the class names for your task
-    discretize_continuous=True  # Optional: Discretize continuous features for better explanations
-)
-
-# Select a sample for which you want to generate the explanation
-sample_idx = 10  # Example: Pick the 10th sample in your test set
-explanation = explainer_lime.explain_instance(X_test[sample_idx], model.predict_proba, num_features=5)
-
-# Visualize the explanation
-explanation.show_in_notebook()  # This will open a visualization of the explanation in the notebook
-
+    # Visualize the explanation
+    explanation.show_in_notebook()  # This will open a visualization of the explanation in the notebook
 
     # Confusion Matrix
     st.subheader("Confusion Matrix")
