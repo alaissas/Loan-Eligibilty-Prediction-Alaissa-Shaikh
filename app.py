@@ -170,14 +170,29 @@ if uploaded_file is not None:
         st.write("Model saved as 'loan_status_model.pkl'")
 
     # User Input for Prediction
-    st.subheader("Make a Prediction")
+    st.subheader("Enter Your Details to Check Loan Eligibility")
+
+    # User Inputs
+    loan_id = st.text_input("Loan ID")
+    gender = st.selectbox("Gender", ["Male", "Female"])
+    married = st.selectbox("Marital Status", ["Married", "Unmarried"])
     applicant_income = st.number_input("Applicant Income", min_value=0, max_value=100000, value=5000)
     loan_amount = st.number_input("Loan Amount", min_value=0, max_value=1000000, value=150000)
 
-    user_input = np.array([[applicant_income, loan_amount]])
-    user_input_scaled = scaler.transform(user_input)
-    prediction = model.predict(user_input_scaled)
-    st.write(f"Predicted Loan Status: {'Approved' if prediction[0] == 1 else 'Rejected'}")
+    # Prepare Input Data for Prediction
+    user_input = np.array([[gender, married, applicant_income, loan_amount]])
+    user_input = pd.DataFrame(user_input, columns=['Gender', 'Married', 'ApplicantIncome', 'LoanAmount'])
+    
+    # Apply preprocessing steps to the user input
+    user_input['Gender'] = le.transform(user_input['Gender'])  # Encode gender
+    user_input['Married'] = le.transform(user_input['Married'])  # Encode marital status
+    user_input_scaled = scaler.transform(user_input)  # Standardize
+
+    # Model Prediction
+    if st.button("Check Loan Eligibility"):
+        prediction = model.predict(user_input_scaled)
+        result = "Approved" if prediction[0] == 1 else "Rejected"
+        st.write(f"Loan Status: {result}")
 
     # Feature Importance (for Random Forest)
     if model_selection == "Random Forest":
